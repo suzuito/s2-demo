@@ -8,3 +8,7 @@ updates:
     directory: "/s2-demo-angular"
     schedule:
       interval: "daily"
+  - package-ecosystem: "gomod"
+    directory: "/s2-demo-go"
+    schedule:
+      interval: "daily"

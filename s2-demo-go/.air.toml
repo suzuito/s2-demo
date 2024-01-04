@@ -1,0 +1,7 @@
+# Only build, do not run
+# https://github.com/cosmtrek/air/issues/365
+[build]
+  bin = "/usr/bin/make"
+  cmd = "/usr/bin/true"
+  exclude_dir = ["docs", "tmp"]
+  include_ext = ["go"]
