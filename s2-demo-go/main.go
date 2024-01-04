@@ -15,6 +15,21 @@ func main() {
 			s2.CellIDFromFace(face),
 		).ValueOf()
 	}))
+	s2o.Set("CellLevel", js.FuncOf(func(this js.Value, args []js.Value) any {
+		cellIDToken := args[0].String()
+		cell := s2.CellFromCellID(s2.CellIDFromToken(cellIDToken))
+		return js.ValueOf(cell.Level())
+	}))
+	s2o.Set("CellGetChildren", js.FuncOf(func(this js.Value, args []js.Value) any {
+		cellIDToken := args[0].String()
+		cell := s2.CellFromCellID(s2.CellIDFromToken(cellIDToken))
+		children, _ := cell.Children()
+		childrenJS := []any{}
+		for _, child := range children {
+			childrenJS = append(childrenJS, NewCellWrapperFromCellID(child.ID()).ValueOf())
+		}
+		return js.ValueOf(childrenJS)
+	}))
 	blocker := make(chan struct{})
 	<-blocker
 }

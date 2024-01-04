@@ -1,17 +1,66 @@
 <main>
     <div class="header_per_demo">
         <div>
-            Title of this demo
+            Cell概要
         </div>
         <div>
-            Description of this demo
+            <p>
+                Cellの概要を説明する。
+            </p>
+            <ul>
+                <li>
+                    Cellとは、単位球を埋め尽くすための、階層構造を持つ四角形。
+                </li>
+                <li>
+                    階層が深くなるほど、より小さいCellとなる。
+                </li>
+                <li>
+                    あるCellの子Cellは、そのCellを4つに分割したCellとなっている。
+                </li>
+            </ul>
         </div>
     </div>
     <div class="body_per_demo">
+        <p>
+            S2ライブラリは、単位球を階層的な四角形へ分解する方法を定義する。
+            この階層的な四角形をCellと呼ぶ。
+        </p>
+        <p>
+            Cellはlevelを持つ。levelはCellの階層を表現する。
+            levelが大きいほど、より小さい四角形(Cellの面積が小さい)となる。
+            levelが小さいほど、より大きい四角形(Cellの面積が大きい)となる。
+        </p>
+        <p>
+            最上階層のCellの特徴を述べる。
+        </p>
+        <ul>
+            <li>最上階層のCellのlevelは0。</li>
+            <li>最上階層のCellは、単位球を覆う6面がそれぞれ1つずつの四角形。</li>
+            <li>最上階層のCellの面積は約85011012.19平方キロメートル(でかい！)。</li>
+        </ul>
+        <p>
+            アフリカ大陸を含んでいる面を実際に見てみよう。
+        </p>
         <div>
             <app-map001 [worldGeoJSON]="worldGeoJSON" [layers]="layers"></app-map001>
         </div>
         <div>
+            <table>
+                <tr *ngFor="let cell of cells.cells" (mouseover)="onMouseOverCell(cell)" (mouseout)="onMouseOutCell()">
+                    <td>
+                        {{cell.cellIDToken}}
+                    </td>
+                    <td>
+                        {{cell.a()}}
+                    </td>
+                    <td>
+                        {{cell.level()}}
+                    </td>
+                    <td>
+                        <button (click)="clickGetChildren(cell)">Get children</button>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 </main>

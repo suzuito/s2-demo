@@ -80,8 +80,10 @@ export class Map001Component implements OnChanges, AfterViewInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('changes', changes);
     if (changes['worldGeoJSON'] !== undefined) {
+      this.redisplay();
+    }
+    if (changes['layers'] !== undefined) {
       this.redisplay();
     }
   }

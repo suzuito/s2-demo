@@ -20,7 +20,6 @@ func (t *CellWrapper) ValueOf() js.Value {
 
 func NewCellWrapperFromCellID(cellID s2.CellID) *CellWrapper {
 	c := s2.CellFromCellID(cellID)
-	c.RectBound().Vertex(0)
 	return &CellWrapper{
 		CellIDToken: cellID.ToToken(),
 		RectBound:   NewRectWrapperFromRect(c.RectBound()),
