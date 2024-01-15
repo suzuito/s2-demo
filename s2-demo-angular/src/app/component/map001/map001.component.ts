@@ -16,6 +16,10 @@ export class Map001Component implements OnChanges, AfterViewInit {
   readonly id: string;
   readonly width: number = 1000;
   readonly height: number = 500;
+  // 投影後地図の中心座標
+  // (例) 東京の座標[139.6500, 35.6764]を指定した場合、地図の初期表示において、投影後地図の中心が東京になるように投影される。
+  @Input()
+  public center: [number, number] = [0, 0];
   @Input()
   public worldGeoJSON: any | undefined;
   @Input()
@@ -32,6 +36,11 @@ export class Map001Component implements OnChanges, AfterViewInit {
 
   ngAfterViewInit(): void {
     const selection: d3.Selection<any, any, any, any> = d3.select(`canvas#${this.id}`);
+    this.projection.rotate(
+      this.center,
+      // -139.6500,
+      // -35.6764,
+    );
     selection.call(d3.drag()
       /**
        * dragイベントの座標(DragEventのxとy)は、下記container関数により指定された要素(以降、container要素と呼ぶ)の「高さ」と「幅」に基づいて計算される。
@@ -73,6 +82,7 @@ export class Map001Component implements OnChanges, AfterViewInit {
       })
       .on("end.render", (event: DragEvent) => {
         this.redisplay();
+        console.log(this.v0, this.r0, this.q0);
       })
     )
       ;
