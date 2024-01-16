@@ -16,6 +16,8 @@ export class Map001Component implements OnChanges, AfterViewInit {
   readonly id: string;
   readonly width: number = 1000;
   readonly height: number = 500;
+  readonly minimumScale: number = 200;
+  readonly maximumScale: number = 100000;
   // 投影後地図の中心座標
   // (例) 東京の座標[139.6500, 35.6764]を指定した場合、地図の初期表示において、投影後地図の中心が東京になるように投影される。
   @Input()
@@ -34,13 +36,14 @@ export class Map001Component implements OnChanges, AfterViewInit {
     this.id = `m-${Date.now().toString()}`;
   }
 
+  private d3Selection(): d3.Selection<any, any, any, any> {
+    return d3.select(`canvas#${this.id}`);
+  }
+
   ngAfterViewInit(): void {
-    const selection: d3.Selection<any, any, any, any> = d3.select(`canvas#${this.id}`);
-    this.projection.rotate(
-      this.center,
-      // -139.6500,
-      // -35.6764,
-    );
+    const selection: d3.Selection<any, any, any, any> = this.d3Selection();
+    // 1. Rotate
+    this.projection.rotate(this.center);
     selection.call(d3.drag()
       /**
        * dragイベントの座標(DragEventのxとy)は、下記container関数により指定された要素(以降、container要素と呼ぶ)の「高さ」と「幅」に基づいて計算される。
@@ -82,10 +85,20 @@ export class Map001Component implements OnChanges, AfterViewInit {
       })
       .on("end.render", (event: DragEvent) => {
         this.redisplay();
-        console.log(this.v0, this.r0, this.q0);
       })
     )
       ;
+    // 2. Zoom
+    this.projection.scale(this.minimumScale);
+    selection.call(d3.zoom()
+      .scaleExtent([this.minimumScale, this.maximumScale])
+      .on('start', (event: d3.D3ZoomEvent<any, any>) => {
+      })
+      .on('zoom', (event: d3.D3ZoomEvent<any, any>) => {
+        this.projection.scale(event.transform.k);
+        this.redisplay();
+      })
+    );
     this.redisplay();
   }
 
@@ -99,7 +112,7 @@ export class Map001Component implements OnChanges, AfterViewInit {
   }
 
   private redisplay(): void {
-    const selection: d3.Selection<any, any, any, any> = d3.select(`canvas#${this.id}`);
+    const selection: d3.Selection<any, any, any, any> = this.d3Selection();
     if (selection.empty()) {
       return;
     }
