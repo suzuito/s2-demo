@@ -1,0 +1,19 @@
+<table>
+    <tr *ngFor="let cell of getCells()">
+        <td>
+            <input type="checkbox" [checked]="isColoredCell(cell)" (input)="onUpdateCellColorCheckbox(cell, $event)" />
+        </td>
+        <td>
+            {{cell.tokenId}}
+        </td>
+        <!--td>
+            {{cell.a()}}
+        </td-->
+        <td>
+            {{cell.level}}
+        </td>
+        <td>
+            <button (click)="clickGetChildren.emit(cell)">Get children</button>
+        </td>
+    </tr>
+</table>

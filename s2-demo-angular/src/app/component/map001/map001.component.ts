@@ -3,6 +3,7 @@ import { InvertibleGeoProjection, asInvertibleGeoProjection } from '../../../lib
 import { Versor } from '../../../lib/versor';
 import * as d3 from "d3";
 import { Layer } from '../../../lib/layer';
+import { WorldGeojsonService } from '../../usecase/service/world-geojson';
 
 @Component({
   selector: 'app-map001',
@@ -23,17 +24,22 @@ export class Map001Component implements OnChanges, AfterViewInit {
   @Input()
   public center: [number, number] = [0, 0];
   @Input()
-  public worldGeoJSON: any | undefined;
-  @Input()
   public layers: Layer[] | undefined;
+
   // versor
   private v0: [number, number, number] = [0, 0, 0];
   private r0: [number, number, number] = [0, 0, 0];
   private q0: [number, number, number, number] = [0, 0, 0, 0];
 
-  constructor() {
+  constructor(
+    public worldGeojsonService: WorldGeojsonService,
+  ) {
     this.projection = asInvertibleGeoProjection(d3.geoOrthographic());
-    this.id = `m-${Date.now().toString()}`;
+    const random = Math.random().toString(36).substring(2, 7);
+    this.id = `m-${random}`;
+    this.worldGeojsonService.onUpdatedLightGeoJSON.subscribe(() => {
+      this.redisplay();
+    });
   }
 
   private d3Selection(): d3.Selection<any, any, any, any> {
@@ -103,10 +109,8 @@ export class Map001Component implements OnChanges, AfterViewInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['worldGeoJSON'] !== undefined) {
-      this.redisplay();
-    }
     if (changes['layers'] !== undefined) {
+      console.log('layers changed');
       this.redisplay();
     }
   }
@@ -127,12 +131,14 @@ export class Map001Component implements OnChanges, AfterViewInit {
     // path(d3.geoGraticule10());
     // context.strokeStyle = '#ccc';
     // context.stroke();
-    context.beginPath();
-    context.strokeStyle = '#000';
-    context.fillStyle = '#0f0';
-    path(this.worldGeoJSON);
-    context.fill();
-    context.stroke();
+    if (this.worldGeojsonService !== undefined) {
+      context.beginPath();
+      context.strokeStyle = '#000';
+      context.fillStyle = '#0f0';
+      path(this.worldGeojsonService.lightGeoJSON as any);
+      context.fill();
+      context.stroke();
+    }
     if (this.layers) {
       this.layers.forEach((layer: Layer) => {
         context.beginPath();

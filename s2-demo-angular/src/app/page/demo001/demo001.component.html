@@ -1,30 +1,32 @@
 <main>
     <div class="header_per_demo">
+        <h1>
+            S2 Cells(日本語訳とサンプルコード) <a href="http://s2geometry.io/devguide/s2cell_hierarchy" target="_blank">src</a>
+        </h1>
         <div>
-            Cell概要
-        </div>
-        <div>
-            <p>
-                Cellの概要を説明する。
-            </p>
-            <ul>
-                <li>
-                    Cellとは、単位球を埋め尽くすための、階層構造を持つ四角形。
-                </li>
-                <li>
-                    階層が深くなるほど、より小さいCellとなる。
-                </li>
-                <li>
-                    あるCellの子Cellは、そのCellを4つに分割したCellとなっている。
-                </li>
-            </ul>
+            本サイトの目的は、S2ライブラリの日本語訳と、実際にサンプルコード書くことで、ヒルベルト曲線のイメージを理解することにあります。
+            というか、筆者が理解しようと試行錯誤した足跡だと思ってください。
+            所々、読み易い日本語となるように意訳しています。
         </div>
     </div>
     <div class="body_per_demo">
+        <h2>S2 Cells</h2>
         <p>
-            S2ライブラリは、単位球を階層的な四角形へ分解する方法を定義する。
-            この階層的な四角形をCellと呼ぶ。
+            S2ライブラリは、単位球を階層的なCellへ分解するための方法を提供する<a href="#annotation001">(*1)</a>。
+            Cellとは<a href="https://ja.wikipedia.org/wiki/%E6%B8%AC%E5%9C%B0%E7%B7%9A">測地線</a>を1辺とする四角形である。
+            最上位のCellは、単位球を覆う6つのCellである<a href="#demo001">(デモ1)</a>。
+            Cellを再起的に4分割することで、1つ下の階層のCellが得られる。
+            この分割は再起的に繰り返され、最下層のCellが得られる。
         </p>
+        <small id="annotation001">
+            (※1) S2ライブラリでは、地球上の点を単位球へ投影し幾何学計算を実施する。<a
+                href="http://s2geometry.io/about/overview#:~:text=S2%20approaches%20this%20problem%20by%20working%20exclusively%20with%20spherical%20projections.%20As%20the%20name%20implies%2C%20spherical%20projections%20map%20points%20on%20the%20Earth%E2%80%99s%20surface%20to%20a%20perfect%20mathematical%20sphere.">
+                参考</a>
+        </small>
+        <p><a id="demo001" href="#demo001">(デモ1)</a>下記は最上位の6つのCell。地球をスッポリ包む。</p>
+        <app-cell-demo [center]="[-139.6500, -35.6764]" [cells]="cellsAtlevel0"></app-cell-demo>
+    </div>
+    <div class="body_per_demo">
         <p>
             Cellはlevelを持つ。levelはCellの階層を表現する。
             levelが大きいほど、より小さい四角形(Cellの面積が小さい)となる。
@@ -41,26 +43,12 @@
         <p>
             アフリカ大陸を含んでいる面を実際に見てみよう。
         </p>
-        <div>
-            <app-map001 [worldGeoJSON]="worldGeoJSON" [layers]="layers" [center]="[-139.6500, -35.6764]"></app-map001>
+        <!--div>
+            <app-map001 [layers]="layers" [center]="[-139.6500, -35.6764]"></app-map001>
         </div>
         <div>
-            <table>
-                <tr *ngFor="let cell of cells.cells" (mouseover)="onMouseOverCell(cell)" (mouseout)="onMouseOutCell()">
-                    <td>
-                        {{cell.cellIDToken}}
-                    </td>
-                    <td>
-                        {{cell.a()}}
-                    </td>
-                    <td>
-                        {{cell.level()}}
-                    </td>
-                    <td>
-                        <button (click)="clickGetChildren(cell)">Get children</button>
-                    </td>
-                </tr>
-            </table>
-        </div>
+            <app-cell-table [cells]="cells" (onMouseOverCell)="onMouseOverCell($event)"
+                (onMouseOutCell)="onMouseOutCell()" (clickGetChildren)="clickGetChildren($event)"></app-cell-table>
+        </div-->
     </div>
 </main>

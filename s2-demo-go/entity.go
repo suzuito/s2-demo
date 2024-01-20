@@ -1,71 +1,42 @@
 package main
 
 import (
+	"encoding/json"
 	"syscall/js"
 
 	"github.com/golang/geo/s2"
+	"github.com/paulmach/orb/geojson"
 )
 
+func toJsValueMap(v any) js.Value {
+	m := map[string]any{}
+	b, err := json.Marshal(v)
+	if err != nil {
+		return js.ValueOf(map[string]any{})
+	}
+	if err := json.Unmarshal(b, &m); err != nil {
+		return js.ValueOf(map[string]any{})
+	}
+	return js.ValueOf(m)
+}
+
 type CellWrapper struct {
-	CellIDToken string
-	RectBound   *RectWrapper
+	CellIDToken string           `json:"tokenId"`
+	Center      *geojson.Feature `json:"center"`
+	Vertecies   *geojson.Feature `json:"vertecies"`
+	Level       int              `json:"level"`
 }
 
 func (t *CellWrapper) ValueOf() js.Value {
-	returned := map[string]any{}
-	returned["cellIDToken"] = t.CellIDToken
-	returned["rectBound"] = t.RectBound.ValueOf()
-	return js.ValueOf(returned)
+	return toJsValueMap(t)
 }
 
 func NewCellWrapperFromCellID(cellID s2.CellID) *CellWrapper {
 	c := s2.CellFromCellID(cellID)
 	return &CellWrapper{
 		CellIDToken: cellID.ToToken(),
-		RectBound:   NewRectWrapperFromRect(c.RectBound()),
-	}
-}
-
-type RectWrapper struct {
-	Points [4]*PointWrapper
-}
-
-func (t *RectWrapper) ValueOf() js.Value {
-	returned := map[string]any{}
-	points := []any{}
-	for _, point := range t.Points {
-		points = append(points, point.ValueOf())
-	}
-	returned["points"] = points
-	return js.ValueOf(returned)
-}
-
-func NewRectWrapperFromRect(rect s2.Rect) *RectWrapper {
-	return &RectWrapper{
-		Points: [4]*PointWrapper{
-			NewPointWrapperFromLatLng(rect.Vertex(3)),
-			NewPointWrapperFromLatLng(rect.Vertex(2)),
-			NewPointWrapperFromLatLng(rect.Vertex(1)),
-			NewPointWrapperFromLatLng(rect.Vertex(0)),
-		},
-	}
-}
-
-type PointWrapper struct {
-	Lat float64
-	Lng float64
-}
-
-func (t *PointWrapper) ValueOf() js.Value {
-	returned := map[string]any{}
-	returned["lat"] = t.Lat
-	returned["lng"] = t.Lng
-	return js.ValueOf(returned)
-}
-
-func NewPointWrapperFromLatLng(point s2.LatLng) *PointWrapper {
-	return &PointWrapper{
-		Lat: point.Lat.Degrees(),
-		Lng: point.Lng.Degrees(),
+		Center:      geojson.NewFeature(NewGeoJSONPointFromS2Point(c.Center())),
+		Vertecies:   geojson.NewFeature(NewGeoJSONPolygonFromS2Cell(c)),
+		Level:       c.Level(),
 	}
 }

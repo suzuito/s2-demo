@@ -4,6 +4,7 @@ import (
 	"syscall/js"
 
 	"github.com/golang/geo/s2"
+	"github.com/paulmach/orb/geojson"
 )
 
 func main() {
@@ -11,8 +12,12 @@ func main() {
 	s2o := js.Global().Get("s2")
 	s2o.Set("NewCellFromFace", js.FuncOf(func(this js.Value, args []js.Value) any {
 		face := args[0].Int()
+		cell := s2.CellIDFromFace(face)
+		NewGeoJSONPolygonFromS2CellID(cell)
+		fc := geojson.NewFeatureCollection()
+		fc.Append(geojson.NewFeature(NewGeoJSONPolygonFromS2CellID(cell)))
 		return NewCellWrapperFromCellID(
-			s2.CellIDFromFace(face),
+			cell,
 		).ValueOf()
 	}))
 	s2o.Set("CellLevel", js.FuncOf(func(this js.Value, args []js.Value) any {

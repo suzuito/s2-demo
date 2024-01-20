@@ -3,71 +3,39 @@ import { Component } from '@angular/core';
 import { Map001Component } from '../../component/map001/map001.component';
 import { Layer } from '../../../lib/layer';
 import { CommonModule } from '@angular/common';
-import { Cell, Cells } from '../../../lib/s2w';
+import { CellWrapper, CellWrappers } from '../../../lib/s2';
+import { CellTableComponent } from '../../component/cell-table/cell-table.component';
+import { CellDemoComponent } from '../../component/cell-demo/cell-demo.component';
+import { WorldGeojsonService } from '../../usecase/service/world-geojson';
+import { WorldGeojsonImplService } from '../../usecase/service/world-geojson-impl.service';
 
 @Component({
   selector: 'app-demo001',
   standalone: true,
   imports: [
+    CellDemoComponent,
     Map001Component,
+    CellTableComponent,
     CommonModule,
   ],
   templateUrl: './demo001.component.html',
   styleUrl: './demo001.component.scss'
 })
 export class Demo001Component {
-  public worldGeoJSON: any | undefined;
   public layers: Layer[] | undefined;
-  public cells: Cells;
 
-  public cellMouseOvered: Cell | undefined;
+  readonly cellsAtlevel0: CellWrappers = new CellWrappers([
+    window.s2.NewCellFromFace(0),
+    window.s2.NewCellFromFace(1),
+    window.s2.NewCellFromFace(2),
+    window.s2.NewCellFromFace(3),
+    window.s2.NewCellFromFace(4),
+    window.s2.NewCellFromFace(5),
+  ]);
 
   constructor(
     private http: HttpClient,
   ) {
-    // this.projection = d3.geoMercator();
-    this.http.get('assets/world.geo.json').subscribe((worldGeoJSON: any) => {
-      this.worldGeoJSON = worldGeoJSON;
-    });
-    this.cells = new Cells();
-    this.cells.add(
-      window.s2w.NewCellFromFace(0),
-    );
-
-    this.redisplay();
   }
 
-  onMouseOverCell(cell: Cell) {
-    this.cellMouseOvered = cell;
-    this.redisplay();
-  }
-
-  onMouseOutCell() {
-    this.cellMouseOvered = undefined;
-    this.redisplay();
-  }
-
-  clickGetChildren(cell: Cell) {
-    const cells = window.s2w.CellGetChildren(cell.cellIDToken);
-    this.cells.add(...cells);
-    this.redisplay();
-  }
-
-  redisplay() {
-    this.layers = this.cells.cells.map((cell: Cell) => {
-      const layer: Layer = {
-        geojson: cell.geojson(),
-        style: {
-          fill: "rgba(255, 0, 0, 0.3)",
-          stroke: "red",
-        },
-      };
-      if (this.cellMouseOvered !== undefined) {
-        if (cell.cellIDToken === this.cellMouseOvered.cellIDToken) {
-          layer.style.fill = "rgba(255, 0, 0, 1)";
-        }
-      }
-      return layer;
-    });
-  }
 }
